@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filestack Upload and Enhance</title>
+    <script src="https://static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-image: url('https://static.global-learning-development.com/wp-content/uploads/2021/06/11105557/GettyImages-1206796363-scaled.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #EF4A25;
+        }
+        button, select, input {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        button {
+            background-color: #EF4A25;
+            color: white;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        select:focus, input:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        input {
+            width: calc(100% - 40px);
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .enhance-buttons, .options-container {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhance Your Images with Filestack</h1>
+        <button id="uploadBtn">Upload File</button>
+        <div class="enhance-buttons">
+            <button id="autoEnhanceBtn">Enhance with AI</button>
+            <button id="manualEnhanceBtn">Set Your Own Enhancements</button>
+        </div>
+        <div class="options-container">
+            <select id="presetSelect">
+                <option value="auto">Auto</option>
+                <option value="vivid">Vivid</option>
+                <option value="beautify">Beautify</option>
+                <option value="beautify_plus">Beautify Plus</option>
+                <option value="fix_dark">Fix Dark</option>
+                <option value="fix_noise">Fix Noise</option>
+                <option value="fix_tint">Fix Tint</option>
+                <option value="outdoor">Outdoor</option>
+                <option value="fireworks">Fireworks</option>
+            </select>
+            <input type="number" id="resizeWidth" placeholder="Width (px)">
+            <input type="number" id="resizeHeight" placeholder="Height (px)">
+            <button id="applyEnhancementsBtn">Apply Enhancements</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Filestack client
+        const filestackClient = filestack.init('A18L3T2eWRemxYIGwGlZsz');
+
+        const uploadBtn = document.getElementById('uploadBtn');
+        const enhanceButtons = document.querySelector('.enhance-buttons');
+        const optionsContainer = document.querySelector('.options-container');
+        const presetSelect = document.getElementById('presetSelect');
+        const resizeWidth = document.getElementById('resizeWidth');
+        const resizeHeight = document.getElementById('resizeHeight');
+        const applyEnhancementsBtn = document.getElementById('applyEnhancementsBtn');
+        let uploadedFileHandle = '';
+
+        uploadBtn.addEventListener('click', () => {
+            filestackClient.picker({
+                onUploadDone: (result) => {
+                    if (result.filesUploaded.length > 0) {
+                        uploadedFileHandle = result.filesUploaded[0].handle;
+                        enhanceButtons.style.display = 'block';
+                        console.log('File uploaded:', uploadedFileHandle);
+                    } else {
+                        console.error('No files uploaded');
+                    }
+                }
+            }).open();
+        });
+
+        document.getElementById('autoEnhanceBtn').addEventListener('click', () => {
+            // Call the enhancement URL with the file handle
+            const enhanceUrl = `https://cdn.filestackcontent.com/A18L3T2eWRemxYIGwGlZsz/enhance/${uploadedFileHandle}`;
+
+            // Open the enhanced image in a new tab
+            window.open(enhanceUrl, '_blank');
+        });
+
+        document.getElementById('manualEnhanceBtn').addEventListener('click', () => {
+            // Show the options for manual enhancement
+            optionsContainer.style.display = 'block';
+        });
+
+        applyEnhancementsBtn.addEventListener('click', () => {
+            // Apply the selected preset and task
+            const selectedPreset = presetSelect.value;
+            let taskString = '';
+
+            if (resizeWidth.value) {
+                taskString += `resize=width:${resizeWidth.value},`;
+            }
+            if (resizeHeight.value) {
+                taskString += `height:${resizeHeight.value},`;
+            }
+
+            taskString = taskString ? `${taskString.slice(0, -1)}/` : '';
+            const enhanceUrl = `https://cdn.filestackcontent.com/${taskString}enhance=preset:${selectedPreset}/${uploadedFileHandle}`;
+
+            // Open the enhanced image in a new tab
+            window.open(enhanceUrl, '_blank');
+        });
+    </script>
+</body>
+</html>
